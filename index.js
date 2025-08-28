@@ -125,7 +125,7 @@ app.post("/token", auth, (req, res) => {
 app.get("/users", auth, async (req, res) => {
   try {
     const users = await User.find({ _id: { $ne: req.user.id } }).select(
-      "username email"
+      "username email phone"
     );
     res.json(users);
   } catch (err) {
