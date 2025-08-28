@@ -207,4 +207,7 @@ app.post("/twiml", (req, res) => {
   res.send(twiml.toString());
 });
 
-
+// ---------------- Server ----------------
+app.listen(PORT, () =>
+  console.log(`Server running at http://localhost:${PORT}`)
+);
