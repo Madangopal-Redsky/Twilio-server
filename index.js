@@ -192,13 +192,15 @@ app.post("/voice-token", auth, (req, res) => {
   res.json({ token: token.toJwt() });
 });
 
+app.use(express.urlencoded({ extended: false }));
+
 app.post("/twiml", (req, res) => {
-  const { To } = req.body; // passed in connect params
+  const { To } = req.body;
   const twiml = new twilio.twiml.VoiceResponse();
 
   if (To) {
     const dial = twiml.dial();
-    dial.client(To); // connect to target client identity
+    dial.client(To);
   } else {
     twiml.say("No recipient specified");
   }
