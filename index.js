@@ -50,7 +50,7 @@ function auth(req, res, next) {
 // ---------------- Signup ----------------
 app.post("/signup", async (req, res) => {
   try {
-    const { username, email, password } = req.body;
+    const { username, email, password, phone } = req.body;
 
     // check duplicate
     const existing = await User.findOne({ email });
@@ -58,7 +58,7 @@ app.post("/signup", async (req, res) => {
       return res.status(400).json({ error: "Email already exists" });
 
     const hashed = await bcrypt.hash(password, 10);
-    const user = new User({ username, email, password: hashed });
+    const user = new User({ username, email, password: hashed, phone });
     await user.save();
 
     res.json({ message: "User created successfully" });
@@ -85,7 +85,7 @@ app.post("/login", async (req, res) => {
 
     res.json({
       token,
-      user: { id: user._id, username: user.username, email: user.email },
+      user: { id: user._id, username: user.username, email: user.email, phone: user.phone },
     });
   } catch (err) {
     res.status(500).json({ error: err.message });
