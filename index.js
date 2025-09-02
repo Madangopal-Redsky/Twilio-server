@@ -195,11 +195,11 @@ app.post("/voice-token", auth, (req, res) => {
 app.use(express.urlencoded({ extended: false }));
 
 app.post("/twiml", (req, res) => {
-  const { To } = req.body;
+  const { To, From } = req.body;
   const twiml = new twilio.twiml.VoiceResponse();
-
+  console.log("Incoming call:", From, "→", To);
   if (To) {
-    const dial = twiml.dial();
+    const dial = twiml.dial({ callerId: From || "client:default" }); 
     dial.client(To);
   } else {
     twiml.say("No recipient specified");
