@@ -210,7 +210,7 @@ app.use(express.urlencoded({ extended: false }));
 // });
 const { sendPushNotification } = require("./fcm");
 
-app.post("/twiml", auth, async (req, res) => {
+app.post("/twiml", async (req, res) => {
   try {
     const { To } = req.body;
     const twiml = new twilio.twiml.VoiceResponse();
