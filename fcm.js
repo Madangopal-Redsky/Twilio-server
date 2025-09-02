@@ -1,7 +1,11 @@
-// fcm.js
 const { google } = require("googleapis");
 const fetch = require("node-fetch");
-const serviceAccount = require("./firebase-service-account.json");
+
+const serviceAccount = {
+  project_id: process.env.FIREBASE_PROJECT_ID,
+  client_email: process.env.FIREBASE_CLIENT_EMAIL,
+  private_key: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, "\n"),
+};
 
 async function getAccessToken() {
   const jwtClient = new google.auth.JWT(
@@ -30,7 +34,7 @@ async function sendPushNotification(fcmToken, dataPayload) {
       body: JSON.stringify({
         message: {
           token: fcmToken,
-          data: dataPayload, // Twilio Voice SDK expects "data" payload
+          data: dataPayload,
         },
       }),
     }
