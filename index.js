@@ -194,58 +194,58 @@ app.post("/voice-token", auth, (req, res) => {
 
 app.use(express.urlencoded({ extended: false }));
 
-// app.post("/twiml", (req, res) => {
-//   const { To } = req.body;
-//   const twiml = new twilio.twiml.VoiceResponse();
+app.post("/twiml", (req, res) => {
+  const { To } = req.body;
+  const twiml = new twilio.twiml.VoiceResponse();
 
-//   if (To) {
-//     const dial = twiml.dial();
-//     dial.client(To);
-//   } else {
-//     twiml.say("No recipient specified");
-//   }
-
-//   res.type("text/xml");
-//   res.send(twiml.toString());
-// });
-const { sendPushNotification } = require("./fcm");
-
-app.post("/twiml", async (req, res) => {
-  try {
-    const { To, From } = req.body;
-    const twiml = new twilio.twiml.VoiceResponse();
-    console.log("Incoming call:", From, "→", To);
-
-    if (To) {
-      console.log("Work 1", To)
-      const dial = twiml.dial();
-      dial.client(To);
-      console.log("Work 2", dial.client(To))
-      // 🔔 Push notify "To" user
-      const user = await User.findOne({ username: To });
-      console.log("Work 3", user)
-      if (user && user.fcmToken) {
-        console.log("Work 4", user, user.fcmToken)
-        await sendPushNotification(user.fcmToken, {
-          twi_message_type: "twilio.voice.call",
-          from: From,
-          to: To,
-        });
-        console.log("Work 5")
-      }
-    } else {
-      twiml.say("No recipient specified");
-    }
-    console.log("Work 6")
-    res.type("text/xml");
-    console.log("Work 7");
-    res.send(twiml.toString());
-    console.log("Work 8");
-  } catch (err) {
-    console.error("Error in /twiml:", err.message);
-    res.status(500).send("Internal Server Error");
+  if (To) {
+    const dial = twiml.dial();
+    dial.client(To);
+  } else {
+    twiml.say("No recipient specified");
   }
+
+  res.type("text/xml");
+  res.send(twiml.toString());
 });
+// const { sendPushNotification } = require("./fcm");
+
+// app.post("/twiml", async (req, res) => {
+//   try {
+//     const { To, From } = req.body;
+//     const twiml = new twilio.twiml.VoiceResponse();
+//     console.log("Incoming call:", From, "→", To);
+
+//     if (To) {
+//       console.log("Work 1", To)
+//       const dial = twiml.dial();
+//       dial.client(To);
+//       console.log("Work 2", dial.client(To))
+//       // 🔔 Push notify "To" user
+//       const user = await User.findOne({ username: To });
+//       console.log("Work 3", user)
+//       if (user && user.fcmToken) {
+//         console.log("Work 4", user, user.fcmToken)
+//         await sendPushNotification(user.fcmToken, {
+//           twi_message_type: "twilio.voice.call",
+//           from: From,
+//           to: To,
+//         });
+//         console.log("Work 5")
+//       }
+//     } else {
+//       twiml.say("No recipient specified");
+//     }
+//     console.log("Work 6")
+//     res.type("text/xml");
+//     console.log("Work 7");
+//     res.send(twiml.toString());
+//     console.log("Work 8");
+//   } catch (err) {
+//     console.error("Error in /twiml:", err.message);
+//     res.status(500).send("Internal Server Error");
+//   }
+// });
 
 app.post("/save-fcm-token", auth, async (req, res) => {
   try {
