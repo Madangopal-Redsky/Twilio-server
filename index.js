@@ -242,6 +242,18 @@ app.post("/twiml", auth, async (req, res) => {
   }
 });
 
+app.post("/save-fcm-token", auth, async (req, res) => {
+  try {
+    const { fcmToken } = req.body;
+    if (!fcmToken) return res.status(400).json({ error: "FCM token missing" });
+
+    await User.findByIdAndUpdate(req.user.id, { fcmToken });
+    res.json({ message: "FCM token saved" });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // ---------------- Server ----------------
 app.listen(PORT, () =>
   console.log(`Server running at http://localhost:${PORT}`)
