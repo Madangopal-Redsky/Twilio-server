@@ -8,6 +8,7 @@ const serviceAccount = {
 };
 
 async function getAccessToken() {
+  console.log("🔥 PRIVATE KEY (first 50 chars):", process.env.FIREBASE_PRIVATE_KEY.slice(0, 50));
   const jwtClient = new google.auth.JWT(
     serviceAccount.client_email,
     null,
