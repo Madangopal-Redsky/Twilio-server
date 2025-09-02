@@ -194,12 +194,27 @@ app.post("/voice-token", auth, (req, res) => {
 
 app.use(express.urlencoded({ extended: false }));
 
+// app.post("/twiml", (req, res) => {
+//   const { To } = req.body;
+//   const twiml = new twilio.twiml.VoiceResponse();
+
+//   if (To) {
+//     const dial = twiml.dial();
+//     dial.client(To);
+//   } else {
+//     twiml.say("No recipient specified");
+//   }
+
+//   res.type("text/xml");
+//   res.send(twiml.toString());
+// });
 const { sendPushNotification } = require("./fcm");
 
 app.post("/twiml", auth, async (req, res) => {
   try {
     const { To } = req.body;
     const twiml = new twilio.twiml.VoiceResponse();
+    console.log("Call To:", To);
 
     if (To) {
       const dial = twiml.dial();
@@ -219,6 +234,7 @@ app.post("/twiml", auth, async (req, res) => {
     }
 
     res.type("text/xml");
+    console.log("res.send(twiml.toString())::>", res.send(twiml.toString()));
     res.send(twiml.toString());
   } catch (err) {
     console.error("Error in /twiml:", err.message);
