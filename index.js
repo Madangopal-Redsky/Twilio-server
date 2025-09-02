@@ -212,9 +212,9 @@ const { sendPushNotification } = require("./fcm");
 
 app.post("/twiml", async (req, res) => {
   try {
-    const { To } = req.body;
+    const { To, from } = req.body;
     const twiml = new twilio.twiml.VoiceResponse();
-    console.log("Call To:", To);
+    console.log("Incoming call:", from, "→", To);
 
     if (To) {
       const dial = twiml.dial();
@@ -225,7 +225,7 @@ app.post("/twiml", async (req, res) => {
       if (user && user.fcmToken) {
         await sendPushNotification(user.fcmToken, {
           twi_message_type: "twilio.voice.call",
-          from: req.user.identity,
+          from: from,
           to: To,
         });
       }
