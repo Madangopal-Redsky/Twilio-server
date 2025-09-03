@@ -209,6 +209,8 @@ app.post("/voice-token", auth, (req, res) => {
 //   res.send(twiml.toString());
 // });
 // ---------------- TwiML endpoint ----------------
+app.use(express.urlencoded({ extended: true }));
+
 app.post("/twiml", async (req, res) => {
   try {
     const { To, From } = req.body;
