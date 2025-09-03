@@ -22,8 +22,9 @@ async function getAccessToken() {
 }
 
 async function sendPushNotification(fcmToken, dataPayload) {
+  console.log("STEP1")
   const accessToken = await getAccessToken();
-
+  console.log("STEP2")
   const response = await fetch(
     `https://fcm.googleapis.com/v1/projects/${serviceAccount.project_id}/messages:send`,
     {
@@ -40,7 +41,7 @@ async function sendPushNotification(fcmToken, dataPayload) {
       }),
     }
   );
-
+  console.log("STEP3")
   const result = await response.json();
   console.log("📨 FCM Response:", result);
   return result;
