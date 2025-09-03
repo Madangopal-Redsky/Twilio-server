@@ -176,7 +176,7 @@ app.get("/messages/:conversationSid", auth, async (req, res) => {
 app.post("/voice-token", auth, (req, res) => {
   const AccessToken = twilio.jwt.AccessToken;
   const VoiceGrant = AccessToken.VoiceGrant;
-
+  console.log("req.user.identity", req.user.identity)
   const voiceGrant = new VoiceGrant({
     outgoingApplicationSid: TWIML_App_SID,
     incomingAllow: true,
