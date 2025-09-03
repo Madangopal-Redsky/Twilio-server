@@ -197,12 +197,21 @@ app.post("/voice-token", auth, (req, res) => {
 app.use(express.urlencoded({ extended: false }));
 
 app.post("/twiml", (req, res) => {
-  const { To, From } = req.body;
+  let { To, From } = req.body;
   const twiml = new twilio.twiml.VoiceResponse();
+
   console.log("Incoming call:", From, "→", To);
+
   if (To) {
-    const dial = twiml.dial({ callerId: From || "client:default" }); 
-    dial.client(To);
+    if (!To.startsWith("client:")) {
+      To = `client:${To}`;   // normalize
+    }
+    if (!From.startsWith("client:")) {
+      From = `client:${From}`;
+    }
+
+    const dial = twiml.dial({ callerId: From });
+    dial.client(To.replace("client:", "")); // TwiML client() expects bare identity
   } else {
     twiml.say("No recipient specified");
   }
@@ -210,6 +219,22 @@ app.post("/twiml", (req, res) => {
   res.type("text/xml");
   res.send(twiml.toString());
 });
+
+
+// app.post("/twiml", (req, res) => {
+//   const { To, From } = req.body;
+//   const twiml = new twilio.twiml.VoiceResponse();
+//   console.log("Incoming call:", From, "→", To);
+//   if (To) {
+//     const dial = twiml.dial({ callerId: From || "client:default" }); 
+//     dial.client(To);
+//   } else {
+//     twiml.say("No recipient specified");
+//   }
+
+//   res.type("text/xml");
+//   res.send(twiml.toString());
+// });
 
 // app.use(express.urlencoded({ extended: true }));
 
