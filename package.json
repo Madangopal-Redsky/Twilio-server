@@ -18,7 +18,7 @@
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.17.2",
     "node-fetch": "^3.3.2",
-    "twilio": "^5.8.0"
+    "twilio": "^5.8.2"
   },
   "devDependencies": {
     "@types/cors": "^2.8.19",

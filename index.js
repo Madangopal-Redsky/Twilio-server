@@ -23,7 +23,8 @@ const {
   TWILIO_API_KEY,
   TWILIO_API_SECRET,
   TWILIO_CONVERSATIONS_SERVICE_SID,
-  TWIML_App_SID
+  TWIML_App_SID,
+  TWILIO_PUSH_CREDENTIAL_SID,
 } = process.env;
 
 // MongoDB connect
@@ -179,6 +180,7 @@ app.post("/voice-token", auth, (req, res) => {
   console.log("req.user.identity", req.user.identity)
   const voiceGrant = new VoiceGrant({
     outgoingApplicationSid: TWIML_App_SID,
+    pushCredentialSid: TWILIO_PUSH_CREDENTIAL_SID,
     incomingAllow: true,
   });
 
@@ -193,49 +195,49 @@ app.post("/voice-token", auth, (req, res) => {
   res.json({ token: token.toJwt() });
 });
 
-app.post("/voice", (req, res) => {
-  const twiml = new twilio.twiml.VoiceResponse();
-
-  const toNumber = req.body.To;
-  console.log("Dialing number:", toNumber);
-
-  if (toNumber) {
-    const dial = twiml.dial({ callerId: process.env.TWILIO_PHONE_NUMBER });
-    dial.number(toNumber); // phone number from app
-  } else {
-    twiml.say("No destination number provided");
-  }
-
-  res.type("text/xml");
-  res.send(twiml.toString());
-});
-
-// ---------------- TwiML endpoint ----------------
-// app.use(express.urlencoded({ extended: false }));
-
-// app.post("/twiml", (req, res) => {
-//   let { To, From } = req.body;
+// app.post("/voice", (req, res) => {
 //   const twiml = new twilio.twiml.VoiceResponse();
 
-//   console.log("Incoming call:", From, "→", To);
+//   const toNumber = req.body.To;
+//   console.log("Dialing number:", toNumber);
 
-//   if (To) {
-//     if (!To.startsWith("client:")) {
-//       To = `client:${To}`;   // normalize
-//     }
-//     if (!From.startsWith("client:")) {
-//       From = `client:${From}`;
-//     }
-
-//     const dial = twiml.dial({ callerId: From });
-//     dial.client(To.replace("client:", "")); // TwiML client() expects bare identity
+//   if (toNumber) {
+//     const dial = twiml.dial({ callerId: process.env.TWILIO_PHONE_NUMBER });
+//     dial.number(toNumber); // phone number from app
 //   } else {
-//     twiml.say("No recipient specified");
+//     twiml.say("No destination number provided");
 //   }
 
 //   res.type("text/xml");
 //   res.send(twiml.toString());
 // });
+
+// ---------------- TwiML endpoint ----------------
+app.use(express.urlencoded({ extended: false }));
+
+app.post("/twiml", (req, res) => {
+  let { To, From } = req.body;
+  const twiml = new twilio.twiml.VoiceResponse();
+
+  console.log("Incoming call:", From, "→", To);
+
+  if (To) {
+    if (!To.startsWith("client:")) {
+      To = `client:${To}`;   // normalize
+    }
+    if (!From.startsWith("client:")) {
+      From = `client:${From}`;
+    }
+
+    const dial = twiml.dial({ callerId: From });
+    dial.client(To.replace("client:", "")); // TwiML client() expects bare identity
+  } else {
+    twiml.say("No recipient specified");
+  }
+
+  res.type("text/xml");
+  res.send(twiml.toString());
+});
 
 // ---------------- TwiML endpoint ----------------
 // app.use(express.urlencoded({ extended: false }));
