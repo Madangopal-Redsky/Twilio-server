@@ -193,23 +193,31 @@ app.post("/voice-token", auth, (req, res) => {
   res.json({ token: token.toJwt() });
 });
 
-// ---------------- TwiML endpoint ----------------
-app.use(express.urlencoded({ extended: false }));
-
-app.post("/twiml", (req, res) => {
-  const { To, From } = req.body;
-  const twiml = new twilio.twiml.VoiceResponse();
-  console.log("Incoming call:", From, "→", To);
-  if (To) {
-    const dial = twiml.dial({ callerId: From || "client:default" }); 
-    dial.client(To);
-  } else {
-    twiml.say("No recipient specified");
-  }
-
+app.post("/voice", (req, res) => {
+  const twiml = new (require("twilio").twiml.VoiceResponse)();
+  const dial = twiml.dial();
+  dial.number(req.body.To); // phone number from app
   res.type("text/xml");
   res.send(twiml.toString());
 });
+
+// ---------------- TwiML endpoint ----------------
+// app.use(express.urlencoded({ extended: false }));
+
+// app.post("/twiml", (req, res) => {
+//   const { To, From } = req.body;
+//   const twiml = new twilio.twiml.VoiceResponse();
+//   console.log("Incoming call:", From, "→", To);
+//   if (To) {
+//     const dial = twiml.dial({ callerId: From || "client:default" }); 
+//     dial.client(To);
+//   } else {
+//     twiml.say("No recipient specified");
+//   }
+
+//   res.type("text/xml");
+//   res.send(twiml.toString());
+// });
 
 // app.use(express.urlencoded({ extended: true }));
 
