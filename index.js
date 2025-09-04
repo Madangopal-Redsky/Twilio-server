@@ -196,6 +196,8 @@ app.post("/voice-token", auth, (req, res) => {
   res.json({ token: token.toJwt() });
 });
 
+app.use(express.urlencoded({ extended: false }));
+
 app.post("/voice", (req, res) => {
   console.log("/voice API INVOKED!!!")
   const To = req.body.To;
