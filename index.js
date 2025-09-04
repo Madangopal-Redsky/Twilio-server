@@ -197,10 +197,11 @@ app.post("/voice-token", auth, (req, res) => {
 });
 
 app.post("/voice", (req, res) => {
-  const to = req.body.To;
-  console.log("To in /voice:", to);
+  console.log("/voice API INVOKED!!!")
+  const To = req.body.To;
+  console.log("To in /voice:", To);
   const twiml = new twilio.twiml.VoiceResponse();
-  twiml.dial().client(to);
+  twiml.dial().client(To);
 
   res.type("text/xml");
   res.send(twiml.toString());
