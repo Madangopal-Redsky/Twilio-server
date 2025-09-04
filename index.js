@@ -25,6 +25,7 @@ const {
   TWILIO_CONVERSATIONS_SERVICE_SID,
   TWIML_App_SID,
   TWILIO_PUSH_CREDENTIAL_SID,
+  TWILIO_PHONE_NUMBER
 } = process.env;
 
 // MongoDB connect
@@ -195,65 +196,45 @@ app.post("/voice-token", auth, (req, res) => {
   res.json({ token: token.toJwt() });
 });
 
-// app.post("/voice", (req, res) => {
-//   const twiml = new twilio.twiml.VoiceResponse();
+app.post("/call", async (req, res) => {
+  const { to } = req.body; // number to call, e.g., "+919876543210"
 
-//   const toNumber = req.body.To;
-//   console.log("Dialing number:", toNumber);
-
-//   if (toNumber) {
-//     const dial = twiml.dial({ callerId: process.env.TWILIO_PHONE_NUMBER });
-//     dial.number(toNumber); // phone number from app
-//   } else {
-//     twiml.say("No destination number provided");
-//   }
-
-//   res.type("text/xml");
-//   res.send(twiml.toString());
-// });
-
-// ---------------- TwiML endpoint ----------------
-app.use(express.urlencoded({ extended: false }));
-
-app.post("/twiml", (req, res) => {
-  let { To, From } = req.body;
-
-  To = (To || "").trim();
-  From = (From || "").trim();
-
-  const twiml = new twilio.twiml.VoiceResponse();
-
-  console.log("Incoming call:", From, "→", To);
-
-  if (To) {
-    if (!To.startsWith("client:")) {
-      To = `client:${To}`;
-    }
-    if (!From.startsWith("client:")) {
-      From = `client:${From}`;
-    }
-
-    const dial = twiml.dial({ callerId: From });
-    dial.client(To.replace("client:", ""));
-  } else {
-    twiml.say("No recipient specified");
+  try {
+    const call = await client.calls.create({
+      to,                  // recipient phone number
+      from: TWILIO_PHONE_NUMBER, // your Twilio number
+      url: "http://demo.twilio.com/docs/voice.xml", // TwiML instructions
+    });
+    res.send({ success: true, callSid: call.sid });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send({ success: false, error: err.message });
   }
-
-  res.type("text/xml");
-  res.send(twiml.toString());
 });
-
 
 // ---------------- TwiML endpoint ----------------
 // app.use(express.urlencoded({ extended: false }));
 
 // app.post("/twiml", (req, res) => {
-//   const { To, From } = req.body;
+//   let { To, From } = req.body;
+
+//   To = (To || "").trim();
+//   From = (From || "").trim();
+
 //   const twiml = new twilio.twiml.VoiceResponse();
+
 //   console.log("Incoming call:", From, "→", To);
+
 //   if (To) {
-//     const dial = twiml.dial({ callerId: From || "client:default" }); 
-//     dial.client(To);
+//     if (!To.startsWith("client:")) {
+//       To = `client:${To}`;
+//     }
+//     if (!From.startsWith("client:")) {
+//       From = `client:${From}`;
+//     }
+
+//     const dial = twiml.dial({ callerId: From });
+//     dial.client(To.replace("client:", ""));
 //   } else {
 //     twiml.say("No recipient specified");
 //   }
@@ -262,40 +243,6 @@ app.post("/twiml", (req, res) => {
 //   res.send(twiml.toString());
 // });
 
-// app.use(express.urlencoded({ extended: true }));
-
-// app.post("/twiml", async (req, res) => {
-//   try {
-//     const { To, From } = req.body;
-//     const twiml = new twilio.twiml.VoiceResponse();
-
-//     console.log(`Incoming call request: From ${From} → To ${To}`);
-
-//     if (To) {
-//       const dial = twiml.dial();
-//       dial.client(To); // call the client identity
-
-//       // Send push notification if user has FCM token
-//       const user = await User.findOne({ username: To });
-//       if (user?.fcmToken) {
-//         await sendPushNotification(user.fcmToken, {
-//           twi_message_type: "twilio.voice.call",
-//           from: From,
-//           to: To,
-//         });
-//         console.log(`Push notification sent to ${To}`);
-//       }
-//     } else {
-//       twiml.say("No recipient specified");
-//     }
-
-//     res.type("text/xml");
-//     res.send(twiml.toString());
-//   } catch (err) {
-//     console.error("Error in /twiml:", err.message);
-//     res.status(500).send("Internal Server Error");
-//   }
-// });
 
 app.post("/save-fcm-token", auth, async (req, res) => {
   try {
