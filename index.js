@@ -196,10 +196,37 @@ app.post("/voice-token", auth, (req, res) => {
 app.post("/voice", (req, res) => {
   const twiml = new (require("twilio").twiml.VoiceResponse)();
   const dial = twiml.dial();
-  dial.number(req.body.To); // phone number from app
+  dial.number(req.body.To); 
   res.type("text/xml");
   res.send(twiml.toString());
 });
+
+// ---------------- TwiML endpoint ----------------
+// app.use(express.urlencoded({ extended: false }));
+
+// app.post("/twiml", (req, res) => {
+//   let { To, From } = req.body;
+//   const twiml = new twilio.twiml.VoiceResponse();
+
+//   console.log("Incoming call:", From, "→", To);
+
+//   if (To) {
+//     if (!To.startsWith("client:")) {
+//       To = `client:${To}`;   // normalize
+//     }
+//     if (!From.startsWith("client:")) {
+//       From = `client:${From}`;
+//     }
+
+//     const dial = twiml.dial({ callerId: From });
+//     dial.client(To.replace("client:", "")); // TwiML client() expects bare identity
+//   } else {
+//     twiml.say("No recipient specified");
+//   }
+
+//   res.type("text/xml");
+//   res.send(twiml.toString());
+// });
 
 // ---------------- TwiML endpoint ----------------
 // app.use(express.urlencoded({ extended: false }));
