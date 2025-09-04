@@ -217,20 +217,24 @@ app.use(express.urlencoded({ extended: false }));
 
 app.post("/twiml", (req, res) => {
   let { To, From } = req.body;
+
+  To = (To || "").trim();
+  From = (From || "").trim();
+
   const twiml = new twilio.twiml.VoiceResponse();
 
   console.log("Incoming call:", From, "→", To);
 
   if (To) {
     if (!To.startsWith("client:")) {
-      To = `client:${To}`;   // normalize
+      To = `client:${To}`;
     }
     if (!From.startsWith("client:")) {
       From = `client:${From}`;
     }
 
     const dial = twiml.dial({ callerId: From });
-    dial.client(To.replace("client:", "")); // TwiML client() expects bare identity
+    dial.client(To.replace("client:", ""));
   } else {
     twiml.say("No recipient specified");
   }
@@ -238,6 +242,7 @@ app.post("/twiml", (req, res) => {
   res.type("text/xml");
   res.send(twiml.toString());
 });
+
 
 // ---------------- TwiML endpoint ----------------
 // app.use(express.urlencoded({ extended: false }));
