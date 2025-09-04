@@ -5,7 +5,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const cors = require("cors");
 const twilio = require("twilio");
-const { sendPushNotification } = require("./fcm");
+// const { sendPushNotification } = require("./fcm");
 
 const User = require("./models/User");
 
@@ -178,7 +178,7 @@ app.get("/messages/:conversationSid", auth, async (req, res) => {
 app.post("/voice-token", auth, (req, res) => {
   const AccessToken = twilio.jwt.AccessToken;
   const VoiceGrant = AccessToken.VoiceGrant;
-  console.log("req.user.identity", req.user.identity)
+  console.log("Voice Token Identity", req.user.identity)
   const voiceGrant = new VoiceGrant({
     outgoingApplicationSid: TWIML_App_SID,
     pushCredentialSid: TWILIO_PUSH_CREDENTIAL_SID,
@@ -196,8 +196,18 @@ app.post("/voice-token", auth, (req, res) => {
   res.json({ token: token.toJwt() });
 });
 
+app.post("/voice", (req, res) => {
+  const to = req.body.To;
+  console.log("To in /voice:", to);
+  const twiml = new twilio.twiml.VoiceResponse();
+  twiml.dial().client(to);
+
+  res.type("text/xml");
+  res.send(twiml.toString());
+});
+
 app.post("/call", async (req, res) => {
-  const { to } = req.body; // number to call, e.g., "+919876543210"
+  const { to } = req.body;
 
   try {
     const call = await client.calls.create({
@@ -212,49 +222,17 @@ app.post("/call", async (req, res) => {
   }
 });
 
-// ---------------- TwiML endpoint ----------------
-// app.use(express.urlencoded({ extended: false }));
+// app.post("/save-fcm-token", auth, async (req, res) => {
+//   try {
+//     const { fcmToken } = req.body;
+//     if (!fcmToken) return res.status(400).json({ error: "FCM token missing" });
 
-// app.post("/twiml", (req, res) => {
-//   let { To, From } = req.body;
-
-//   To = (To || "").trim();
-//   From = (From || "").trim();
-
-//   const twiml = new twilio.twiml.VoiceResponse();
-
-//   console.log("Incoming call:", From, "→", To);
-
-//   if (To) {
-//     if (!To.startsWith("client:")) {
-//       To = `client:${To}`;
-//     }
-//     if (!From.startsWith("client:")) {
-//       From = `client:${From}`;
-//     }
-
-//     const dial = twiml.dial({ callerId: From });
-//     dial.client(To.replace("client:", ""));
-//   } else {
-//     twiml.say("No recipient specified");
+//     await User.findByIdAndUpdate(req.user.id, { fcmToken });
+//     res.json({ message: "FCM token saved" });
+//   } catch (err) {
+//     res.status(500).json({ error: err.message });
 //   }
-
-//   res.type("text/xml");
-//   res.send(twiml.toString());
 // });
-
-
-app.post("/save-fcm-token", auth, async (req, res) => {
-  try {
-    const { fcmToken } = req.body;
-    if (!fcmToken) return res.status(400).json({ error: "FCM token missing" });
-
-    await User.findByIdAndUpdate(req.user.id, { fcmToken });
-    res.json({ message: "FCM token saved" });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
 
 // ---------------- Server ----------------
 app.listen(PORT, () =>
