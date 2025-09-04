@@ -204,7 +204,6 @@ app.post("/voice", (req, res) => {
   console.log("To in /voice:", To);
   const twiml = new twilio.twiml.VoiceResponse();
   twiml.dial().client(To);
-  console.log('DIAL:::>',twiml.dial().client(To));
   res.type("text/xml");
   res.send(twiml.toString());
 });
