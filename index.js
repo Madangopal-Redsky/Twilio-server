@@ -194,9 +194,18 @@ app.post("/voice-token", auth, (req, res) => {
 });
 
 app.post("/voice", (req, res) => {
-  const twiml = new (require("twilio").twiml.VoiceResponse)();
-  const dial = twiml.dial();
-  dial.number(req.body.To); 
+  const twiml = new twilio.twiml.VoiceResponse();
+
+  const toNumber = req.body.To;
+  console.log("Dialing number:", toNumber);
+
+  if (toNumber) {
+    const dial = twiml.dial({ callerId: process.env.TWILIO_PHONE_NUMBER });
+    dial.number(toNumber); // phone number from app
+  } else {
+    twiml.say("No destination number provided");
+  }
+
   res.type("text/xml");
   res.send(twiml.toString());
 });
